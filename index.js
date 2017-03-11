@@ -1,6 +1,9 @@
 var child = require('child_process');
+var Status = require('status-dev-cli');
 
 module.exports = function(embark) {
+  var status = new Status({ip: embark.pluginConfig.deviceIp});
+
   var getDAppData = function() {
     return {
       "whisper-identity": (embark.pluginConfig.whisperIdentity || "dapp-test"),
@@ -9,28 +12,22 @@ module.exports = function(embark) {
     };
   };
 
-  var statusAddDApp = function(dapp) {
-    child.exec("./node_modules/.bin/status-dev-cli add-dapp " + JSON.stringify(dapp) + " --ip " + embark.pluginConfig.deviceIp);
-  };
-
-  var statusSwitchNode = function(node) {
-    child.exec("./node_modules/.bin/status-dev-cli switch-node " + node + " --ip " + embark.pluginConfig.deviceIp);
-  };
-
-  var statusDAppChanged = function(dapp) {
-    child.exec("./node_modules/.bin/status-dev-cli refresh-dapp " + JSON.stringify(dapp) + " --ip " + embark.pluginConfig.deviceIp);
-  };
-
   embark.events.on("firstDeploymentDone", function() {
-    statusSwitchNode("http://" + embark.config.blockchainConfig.rpcHost + ":" + embark.config.blockchainConfig.rpcPort);
+    status.switchNode("http://" + embark.config.blockchainConfig.rpcHost + ":" + embark.config.blockchainConfig.rpcPort);
 
     embark.logger.info("Adding DApp to Status");
-    statusAddDApp(getDAppData());
+    status.addDapp(getDAppData(), function(err, result) {
+      if(err) {
+        embark.logger.error("Error adding DApp to Status");
+      } else {
+        embark.logger.info("DApp added to Status");
+      }
+    });
   });
 
 
   // when the dapp is regenerated
   embark.events.on("outputDone", function() {
-    statusDAppChanged(getDAppData());
+    status.refreshDapp(getDAppData());
   });
 };

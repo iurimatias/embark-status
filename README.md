@@ -1,3 +1,5 @@
+**Requires Status 0.9.4+ and Embark 2.4.0+**
+
 # Installation
 
 ```npm install embark-status --save```

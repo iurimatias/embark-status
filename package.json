@@ -10,6 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "request": "^2.79.0",
-    "status-dev-cli": "^2.2.1"
+    "status-dev-cli": "iurimatias/status-dev-cli#master"
   }
 }
